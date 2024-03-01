@@ -1,6 +1,6 @@
 # VBA макрос для вставки и удаления строк
 ```vba
-    '' Вставка строк в общую таблицу
+    '' Вставка строк из Листа1 в общую таблицу на Листе2
     Sheets("Лист1").Select
     Range("A3").Select
     Selection.CurrentRegion.Select
@@ -23,7 +23,7 @@
 
     Set rng = ws.Range("B1:B" & lastRow)
     
-    ' Фильтруем и удаляем ячейки
+    ' Фильтруем строки с пустым значением в столбце B и удаляем строки (Offset(1, 0) - для пропуска заголовка)
     With rng
         .AutoFilter Field:=1, Criteria1:="="
         .Offset(1, 0).SpecialCells(xlCellTypeVisible).EntireRow.Delete
