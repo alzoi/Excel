@@ -1,4 +1,8 @@
 # VBA макрос для вставки и удаления строк
+
+## Ссылки
+https://learn.microsoft.com/ru-ru/office/vba/api/overview/excel
+
 ```vba
     Application.ScreenUpdating = False
         
