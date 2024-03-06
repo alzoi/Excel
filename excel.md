@@ -1,7 +1,8 @@
 # VBA макрос для вставки и удаления строк
 
 ## Ссылки
-https://learn.microsoft.com/ru-ru/office/vba/api/overview/excel
+https://learn.microsoft.com/ru-ru/office/vba/api/overview/excel  
+[Работа со словарём](http://perfect-excel.ru/publ/excel/makrosy_i_programmy_vba/ischerpyvajushhee_opisanie_obekta_dictionary/7-1-0-101)  
 
 ```vba
 ' Добавить данные групп в таблицу итогов
