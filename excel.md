@@ -100,5 +100,4 @@ Sub Total_prepayment(Sheet_gr As Worksheet)
 
 End Sub
 ```
-![image](https://github.com/alzoi/Excel/assets/20499566/e5a7decc-ee68-4d93-a554-7f8ac56c5308)
-
+![image](https://github.com/alzoi/Excel/assets/20499566/71a3479f-2f86-4e3a-a9f3-de18cce991a3)
