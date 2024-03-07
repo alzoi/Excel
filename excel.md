@@ -5,12 +5,13 @@ https://learn.microsoft.com/ru-ru/office/vba/api/overview/excel
 [Работа со словарём](http://perfect-excel.ru/publ/excel/makrosy_i_programmy_vba/ischerpyvajushhee_opisanie_obekta_dictionary/7-1-0-101)  
 
 ```vba
-' Добавить данные групп в таблицу итогов
 Sub Add_data_groups_to_result()
+' Добавить данные групп в таблицу итогов
         
   Application.ScreenUpdating = False
       
   Dim num_group As Long
+  Dim num_row As Integer
   
   num_group = 0
   
@@ -18,14 +19,17 @@ Sub Add_data_groups_to_result()
           
     num_group = num_group + 1
         
-    ' Если текущие данные группы ещё не добавлены.
+    ' Если текущие данные группы ещё не добавлены B1 <> "".
     Dim Sheet_gr As Worksheet
-    Set Sheet_gr = ActiveWorkbook.Worksheets(num_group)
+    Set Sheet_gr = Worksheets(num_group)
     
     If Sheet_gr.Range("B1").FormulaR1C1 <> "" Then
         
       ' Копируем данные группы за день
-      Sheet_gr.Range("A4").CurrentRegion.Copy
+      Sheet_gr.Range("A4:F30").Copy
+      
+      ' Считаем итоги аванса
+      Total_prepayment Sheet_gr
               
       ' Последняя строка в таблице итогов.
       Dim ws As Worksheet
@@ -36,30 +40,28 @@ Sub Add_data_groups_to_result()
       Set ws = ActiveWorkbook.Sheets("Итоги")
       lastRow = ws.Range("A" & ws.Rows.Count).End(xlUp).Row + 1
       
+      'ws.AutoFilterMode = False
+      
       Set range_last = Range("A" & lastRow)
       range_last.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=True, Transpose:=False
       
       Application.CutCopyMode = False
-  
-      ' Удаление строк в которых в ячейке D "Сумма" нет значения
-      Dim rng As Range
-      lastRow = ws.Range("D" & ws.Rows.Count).End(xlUp).Row
-      Set rng = ws.Range("D1:D" & lastRow)
-      
-      ' Фильтруем и удаляем ячейки
-      With rng
-        .AutoFilter Field:=1, Criteria1:="="
-        .Offset(1, 0).SpecialCells(xlCellTypeVisible).EntireRow.Delete
-      End With
-  
-      ws.AutoFilterMode = False
-          
+            
+      ' Удаление строк с нулевой суммой
+      num_row = lastRow + 30 - 1
+      Do While num_row >= lastRow
+        If Range("E" & num_row).value = "" And Range("F" & num_row).value = "" Then
+          Range("E" & num_row).EntireRow.Delete
+        End If
+        num_row = num_row - 1
+      Loop
+                
       ' Метка о записи данных в таблицу
       Sheet_gr.Range("B1").FormulaR1C1 = ""
           
-      ' Обнуляем сумму
-      Sheet_gr.Range("D4:D30").ClearContents
-    
+      ' Обнуляем сумму в группе
+      Sheet_gr.Range("E4:F30").ClearContents
+          
     End If
           
   Loop
@@ -67,6 +69,34 @@ Sub Add_data_groups_to_result()
   Range("A1").Select
   
   Application.ScreenUpdating = True
+
+End Sub
+Sub Total_prepayment(Sheet_gr As Worksheet)
+' Расчёт остатка аванса
+
+  Dim num_row As Integer
+  
+  Dim sum, prep, sum_prep  As Double
+    
+  For num_row = 4 To 30
+    
+    sum = 0
+    prep = 0
+    sum_prep = 0
+    
+    sum = Sheet_gr.Range("E" & num_row).value
+    prep = Sheet_gr.Range("F" & num_row).value
+    sum_prep = Sheet_gr.Range("G" & num_row).value
+    
+    sum_prep = sum_prep + prep - sum
+    
+    If sum_prep < 0 Then
+      sum_prep = 0
+    End If
+    
+    Sheet_gr.Range("G" & num_row).value = sum_prep
+    
+  Next num_row
 
 End Sub
 ```
