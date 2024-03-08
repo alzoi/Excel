@@ -100,4 +100,131 @@ Sub Total_prepayment(Sheet_gr As Worksheet)
 
 End Sub
 ```
+
+# Алгоритм
+```vba
+Dim НачалоДанных, ОкончаниеДанных As Integer
+
+Sub ВыполнитьПроводкуВсеГруппы()
+
+  Application.ScreenUpdating = False
+  
+  НачалоДанных = 4
+  ОкончаниеДанных = 30
+  
+  Dim НомерГруппы As Long
+  Dim Ошибка As Boolean
+  
+  ' Список групп
+  For НомерГруппы = 1 To 2
+    
+    Dim ЛистГруппы As Worksheet
+    Set ЛистГруппы = Worksheets(НомерГруппы)
+        
+    ' Если текущие данные группы ещё не добавлены B1 <> "".
+    If Ошибка = False And ЛистГруппы.range("B1").FormulaR1C1 <> "" Then
+          
+      Ошибка = ВыполнитьПроводкуГруппы(ЛистГруппы)
+    
+    End If
+      
+  Next НомерГруппы
+    
+  If Ошибка = False Then
+    range("A1").Select
+  End If
+  
+  Application.ScreenUpdating = True
+
+End Sub
+Function ВыполнитьПроводкуГруппы(ЛистГруппы As Worksheet) As Boolean
+
+  Dim Ошибка As Boolean
+  Dim НомерСтроки As Integer
+  Dim ИсходныйОстатокАванса As Double
+  
+  Dim Сумма, Аванс, ОстатокАванса As range
+  
+  ' Получаем новый остаток Аванса
+  For НомерСтроки = НачалоДанных To ОкончаниеДанных
+    
+    Set Аванс = ЛистГруппы.range("F" & НомерСтроки)
+    
+    Set ОстатокАванса = ЛистГруппы.range("G" & НомерСтроки)
+    
+    ИсходныйОстатокАванса = ОстатокАванса.value
+    
+    If Аванс.value > 0 Then
+                              
+      ОстатокАванса.value = ИсходныйОстатокАванса + Аванс.value
+      
+    End If
+    
+    Set Сумма = ЛистГруппы.range("E" & НомерСтроки)
+    
+    ' Если сумму нельзя списать из аванса
+    If Сумма.value < 0 _
+    And ОстатокАванса.value > 0 And Abs(Сумма.value) > ОстатокАванса.value Then
+      
+      ОстатокАванса.value = ИсходныйОстатокАванса
+      
+      ЛистГруппы.Activate
+      
+      ЛистГруппы.range("E" & НомерСтроки).Select
+      
+      Dim Response
+      Response = MsgBox("Аванса недостаточно, лист ''" & ЛистГруппы.Name & _
+        "'', строка " & НомерСтроки, vbExclamation)
+      
+      ВыполнитьПроводкуГруппы = True
+      Exit Function
+            
+    End If
+    
+  Next НомерСтроки
+  
+  ' Копируем данные группы за день
+  ЛистГруппы.range("A" & НачалоДанных & ":F" & ОкончаниеДанных).Copy
+  
+  ' Вставляем данные в лист Итоги
+  Dim ЛистИтоги As Worksheet
+  Set ЛистИтоги = ActiveWorkbook.Sheets("Итоги")
+  
+  Dim НоваяСтрока As Long
+  НоваяСтрока = ПолучитьСтрокуВставки(ЛистИтоги)
+        
+  Dim range_last As range
+  Set range_last = range("A" & НоваяСтрока)
+  range_last.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=True, Transpose:=False
+  
+  Application.CutCopyMode = False
+        
+  ' Удаление строк с нулевой суммой
+  Dim i As Integer
+  For i = НоваяСтрока + ОкончаниеДанных - НачалоДанных To НоваяСтрока Step -1
+    
+    If range("E" & i).value = "" And range("F" & i).value = "" Then
+      range("E" & i).EntireRow.Delete
+    End If
+  
+  Next i
+            
+  ' Метка о записи данных в таблицу
+  ЛистГруппы.range("B1").FormulaR1C1 = ""
+      
+  ' Обнуляем введённые данные
+  ЛистГруппы.range("E" & НачалоДанных & ":F" & ОкончаниеДанных).ClearContents
+
+End Function
+Function ПолучитьСтрокуВставки(ws As Worksheet) As Long
+    
+  Dim ran As range
+  Set ran = ws.range("A:A").Find("", LookIn:=xlValues)
+  If Not ran Is Nothing Then
+    ПолучитьСтрокуВставки = ran.Row
+  End If
+
+End Function
+```
+
 ![image](https://github.com/alzoi/Excel/assets/20499566/71a3479f-2f86-4e3a-a9f3-de18cce991a3)
