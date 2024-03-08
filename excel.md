@@ -101,7 +101,7 @@ Sub Total_prepayment(Sheet_gr As Worksheet)
 End Sub
 ```
 
-# Алгоритм
+# Журнал
 ```vba
 Dim НачалоДанных, ОкончаниеДанных As Integer
 
@@ -179,6 +179,12 @@ Function ВыполнитьПроводкуГруппы(ЛистГруппы As 
       ВыполнитьПроводкуГруппы = True
       Exit Function
             
+    End If
+    
+    ' Если сумму можно списать из аванса
+    If Сумма.value < 0 _
+    And ОстатокАванса.value > 0 And Abs(Сумма.value) <= ОстатокАванса.value Then
+      ОстатокАванса.value = ОстатокАванса.value + Сумма.value
     End If
     
   Next НомерСтроки
