@@ -210,7 +210,15 @@ Function ВыполнитьПроводкуГруппы(ЛистГруппы As 
   For i = НоваяСтрока + ОкончаниеДанных - НачалоДанных To НоваяСтрока Step -1
     
     If range("E" & i).value = "" And range("F" & i).value = "" Then
+      
       range("E" & i).EntireRow.Delete
+    
+    ElseIf range("E" & i).value < 0 Then
+      
+      ' Перенос суммы в использование аванса
+      range("G" & i).value = range("E" & i).value
+      range("E" & i).value = 0
+    
     End If
   
   Next i
@@ -233,4 +241,8 @@ Function ПолучитьСтрокуВставки(ws As Worksheet) As Long
 End Function
 ```
 
-![image](https://github.com/alzoi/Excel/assets/20499566/71a3479f-2f86-4e3a-a9f3-de18cce991a3)
+![image](https://github.com/alzoi/Excel/assets/20499566/7e251cdc-7593-48cc-bf85-0cb4e7cf92a8)  
+![image](https://github.com/alzoi/Excel/assets/20499566/44d4a133-8ddd-4731-a7e4-35b42eb4ddc9)  
+
+
+
